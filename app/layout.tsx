@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import Script from 'next/script'
+import MetaPixelStatus from '@/components/MetaPixelStatus'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -57,6 +58,9 @@ export default function RootLayout({
       </head>
       <body className={`${inter.className} bg-black min-h-screen`}>
         {children}
+        <div className="fixed bottom-4 right-4">
+          <MetaPixelStatus />
+        </div>
       </body>
     </html>
   )

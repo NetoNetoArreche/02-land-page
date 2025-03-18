@@ -144,6 +144,30 @@ class MetaConversionsAPI {
     const eventData = this.createEventData('FindLocation', options)
     await this.sendEvent([eventData])
   }
+
+  // Método para testar a conexão com a API
+  async testConnection(): Promise<{ success: boolean; message: string }> {
+    try {
+      const testEvent: ConversionData = {
+        event_name: 'PageView' as StandardEvent,
+        event_time: Math.floor(Date.now() / 1000),
+        action_source: 'website',
+        user_data: this.prepareUserData()
+      }
+
+      const result = await this.sendEvent([testEvent])
+      
+      return {
+        success: true,
+        message: 'API de Conversões conectada com sucesso'
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: `Erro na conexão com a API de Conversões: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
+      }
+    }
+  }
 }
 
 // Exporta uma instância única
