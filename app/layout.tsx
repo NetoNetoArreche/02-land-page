@@ -56,10 +56,13 @@ export default function RootLayout({
         </noscript>
         {/* End Meta Pixel Code */}
       </head>
-      <body className={`${inter.className} bg-black min-h-screen`}>
+      <body className={`${inter.className} bg-black min-h-screen relative`}>
         {children}
         <div className="fixed bottom-4 right-4">
           <MetaPixelStatus />
+        </div>
+        <div className="w-full text-center py-4 text-xs text-gray-500">
+          CNPJ: 42.242.938/0001-68
         </div>
       </body>
     </html>

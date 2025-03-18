@@ -159,7 +159,7 @@ class MetaConversionsAPI {
       
       return {
         success: true,
-        message: 'API de Conversões conectada com sucesso'
+        message: 'sucesso'
       }
     } catch (error) {
       return {
