@@ -15,7 +15,7 @@ export default function Plans() {
     id: 'annual',
     name: 'Assinatura Anual',
     priceOneTime: '497,00',
-    priceInstallment: '49,90',
+    priceInstallment: '51,40',
     ctaLink: content?.hero?.ctaLink,
     features: [
       'Acesso a todos os cursos futuros',
