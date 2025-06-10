@@ -8,7 +8,7 @@ import { metaConversions } from '@/lib/meta-conversions'
 
 export default function ThankYou() {
   const searchParams = useSearchParams()
-
+ 
   useEffect(() => {
     // Não inicializa o pixel novamente, pois já foi inicializado no layout.tsx
     const checkApiConnection = () => {
