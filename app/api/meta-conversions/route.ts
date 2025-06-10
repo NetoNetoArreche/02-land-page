@@ -8,15 +8,24 @@ export async function POST(request: NextRequest) {
     const url = request.headers.get('referer') || request.url
     const userAgent = request.headers.get('user-agent') || ''
     const ip = request.headers.get('x-forwarded-for') || request.ip || ''
-    
+
+    // Verificar se o evento é PageView, caso contrário, rejeitar
+    if (data.event_name && data.event_name !== 'PageView') {
+      return NextResponse.json(
+        { success: false, error: 'Apenas eventos PageView são permitidos' },
+        { status: 400 }
+      )
+    }
+
     // Pegar cookies FBC e FBP
     const cookies = request.cookies
     const fbc = cookies.get('_fbc')?.value
     const fbp = cookies.get('_fbp')?.value
 
-    // Preparar dados do evento
+    // Preparar dados do evento - forçar como PageView
     const eventData: ConversionData = {
       ...data,
+      event_name: 'PageView', // Forçar apenas PageView
       event_time: Math.floor(Date.now() / 1000),
       event_source_url: url,
       user_data: {

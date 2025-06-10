@@ -116,40 +116,40 @@ class MetaConversionsAPI {
     }
   }
 
-  // Eventos Padrão
+  // Apenas o evento PageView é permitido
+  // Outros métodos estão desabilitados e retornam mensagens de erro
+  
   async viewContent(options: EventOptions = {}): Promise<void> {
-    const eventData = this.createEventData('ViewContent', options)
-    await this.sendEvent([eventData])
+    console.warn('Evento ViewContent desativado - apenas PageView é permitido')
+    return
   }
 
   async addPaymentInfo(options: EventOptions = {}): Promise<void> {
-    const eventData = this.createEventData('AddPaymentInfo', options)
-    await this.sendEvent([eventData])
+    console.warn('Evento AddPaymentInfo desativado - apenas PageView é permitido')
+    return
   }
 
   async initiateCheckout(options: EventOptions = {}): Promise<void> {
-    const eventData = this.createEventData('InitiateCheckout', options)
-    await this.sendEvent([eventData])
+    console.warn('Evento InitiateCheckout desativado - apenas PageView é permitido')
+    return
   }
 
   async purchase(options: EventOptions = {}): Promise<void> {
-    if (!options.customData?.currency || !options.customData?.value) {
-      throw new Error('Eventos de compra requerem moeda e valor')
-    }
-    const eventData = this.createEventData('Purchase', options)
-    await this.sendEvent([eventData])
+    console.warn('Evento Purchase desativado - apenas PageView é permitido')
+    return
   }
 
   async findLocation(options: EventOptions = {}): Promise<void> {
-    const eventData = this.createEventData('FindLocation', options)
-    await this.sendEvent([eventData])
+    console.warn('Evento FindLocation desativado - apenas PageView é permitido')
+    return
   }
 
-  // Método para testar a conexão com a API
+  // Método para testar a conexão com a API - apenas PageView
   async testConnection(): Promise<{ success: boolean; message: string }> {
     try {
+      // Cria um evento PageView para testar a conexão
       const testEvent: ConversionData = {
-        event_name: 'PageView' as StandardEvent,
+        event_name: 'PageView' as StandardEvent, // Apenas PageView é permitido
         event_time: Math.floor(Date.now() / 1000),
         action_source: 'website',
         user_data: this.prepareUserData()
@@ -159,7 +159,7 @@ class MetaConversionsAPI {
       
       return {
         success: true,
-        message: 'sucesso'
+        message: 'Pixel configurado (apenas PageView)'
       }
     } catch (error) {
       return {

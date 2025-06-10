@@ -5,40 +5,20 @@ import confetti from 'canvas-confetti'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { metaConversions } from '@/lib/meta-conversions'
-import { metaPixel } from '@/lib/meta-pixel'
 
 export default function ThankYou() {
   const searchParams = useSearchParams()
 
   useEffect(() => {
-    // Envia evento de compra para o Meta
-    const sendPurchaseEvent = async () => {
+    // Não inicializa o pixel novamente, pois já foi inicializado no layout.tsx
+    const checkApiConnection = () => {
       try {
-        const eventData = {
-          currency: 'BRL',
-          value: 497.00,
-          content_type: 'product',
-          content_name: 'Assinatura Anual Design no Code',
-          content_ids: ['annual_subscription'],
-          content_category: 'Assinatura',
-          contents: [{
-            id: 'annual_subscription',
-            quantity: 1,
-            item_price: 497.00
-          }],
-          status: 'completed'
-        }
-
-        // Gera ID único para o evento
-        const eventId = metaPixel.track('Purchase', eventData)
-
-        // Envia para API de Conversões com mesmo eventId
-        await metaConversions.purchase({
-          eventId,
-          customData: eventData
-        })
+        // Apenas verifica a conexão com a API sem enviar eventos adicionais
+        metaConversions.testConnection()
+          .then(() => console.log('API de Conversões conectada'))
+          .catch(err => console.error('Erro na API de Conversões:', err))
       } catch (error) {
-        console.error('Erro ao enviar evento de compra:', error)
+        console.error('Erro ao verificar API:', error)
       }
     }
 
@@ -75,8 +55,8 @@ export default function ThankYou() {
       )
     }, 250)
 
-    // Executa os efeitos
-    sendPurchaseEvent()
+    // Verifica apenas a conexão com a API
+    checkApiConnection()
 
     return () => clearInterval(interval)
   }, [])

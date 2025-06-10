@@ -1,75 +1,81 @@
-// Tipos para eventos do Pixel
-export type PixelEvent = 'PageView' | 'ViewContent' | 'InitiateCheckout' | 'Purchase' | 'AddPaymentInfo' | 'FindLocation'
+// Tipos de eventos do Pixel
+export type PixelEventType = 'PageView' | 'ViewContent' | 'AddToCart' | 'InitiateCheckout' | 'Purchase' | 'AddPaymentInfo' | 'Lead' | 'CompleteRegistration' | 'Contact' | 'FindLocation' | 'Schedule' | 'SubmitApplication' | 'Subscribe'
 
-// Interface para dados do evento
-export interface PixelEventData {
-  value?: number
-  currency?: string
-  content_name?: string
-  content_category?: string
-  content_ids?: string[]
-  content_type?: string
-  contents?: Array<{
-    id: string
-    quantity: number
-    item_price?: number
-  }>
-  status?: string
-  payment_method?: string
-  location_id?: string
-  event_time?: number
-  event_source_url?: string
-  user_agent?: string
-}
+// Interface para o objeto window com o fbq já está definida em types/window.d.ts
 
-// Declaração global do fbq
-declare global {
-  interface Window {
-    fbq?: (...args: any[]) => void
-    _fbq?: any
+// Classe para gerenciar o Meta Pixel - apenas verificação, sem inicialização
+class MetaPixel {
+  private pixelId: string
+
+  constructor(pixelId: string = '1848788082579760') {
+    this.pixelId = pixelId
+  }
+
+  // Verifica se o Pixel está disponível
+  isAvailable(): boolean {
+    return typeof window !== 'undefined' && !!window.fbq
+  }
+
+  // NÃO inicializa o pixel, apenas verifica se ele já existe
+  initialize(): void {
+    if (typeof window === 'undefined') return
+    
+    if (window.fbq) {
+      console.log('Meta Pixel já está disponível')
+    } else {
+      console.warn('Meta Pixel não encontrado no window. Verifique o script no layout.tsx')
+    }
+  }
+
+  // Envia apenas o evento PageView se o pixel já estiver inicializado
+  trackEvent(eventName: PixelEventType, data: Record<string, any> = {}): string | null {
+    // Bloqueia qualquer evento que não seja PageView
+    if (eventName !== 'PageView') {
+      console.warn(`Evento ${eventName} bloqueado. Apenas PageView é permitido.`)
+      return null
+    }
+
+    // Verifica se o Pixel está disponível
+    if (!this.isAvailable()) {
+      console.warn('Meta Pixel não disponível para enviar eventos')
+      return null
+    }
+
+    // Gera um ID único para o evento
+    const eventId = `${eventName}_${Date.now()}`
+
+    try {
+      // NÃO enviamos o evento novamente, pois o PageView já é enviado automaticamente
+      // pelo script no layout.tsx. Apenas logamos para fins de debug.
+      console.log(`Evento ${eventName} já foi enviado pelo script no layout.tsx`)
+      return eventId
+    } catch (error) {
+      console.error('Erro ao verificar evento:', error)
+      return null
+    }
   }
 }
 
-// Função para inicializar o Pixel
-export function initializePixel(pixelId: string = '1848788082579760') {
-  if (typeof window === 'undefined') return
+// Instância única do Meta Pixel
+export const metaPixel = new MetaPixel()
 
-  // Evita duplicação da inicialização
-  if (window.fbq) return
+// Funções de conveniência para compatibilidade com código existente
 
-  // Código base do Pixel
-  !function(f,b,e,v,n,t,s)
-  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-  n.queue=[];t=b.createElement(e);t.async=!0;
-  t.src=v;s=b.getElementsByTagName(e)[0];
-  s.parentNode.insertBefore(t,s)}(window, document,'script',
-  'https://connect.facebook.net/en_US/fbevents.js');
-
-  // Inicializa o Pixel
-  window.fbq?.('init', pixelId);
-  window.fbq?.('track', 'PageView');
+// NÃO inicializa o pixel, apenas verifica se ele já existe
+export function initializePixel(pixelId: string = '1848788082579760'): void {
+  metaPixel.initialize()
 }
 
-// Função para enviar eventos
-export function trackPixelEvent(eventName: PixelEvent, data?: PixelEventData) {
-  if (typeof window === 'undefined' || !window.fbq) return
-
-  // Gera um ID único para o evento para evitar duplicidade
-  const eventId = `${eventName}_${Date.now()}`
-
-  // Envia o evento com os dados
-  window.fbq?.('track', eventName, {
-    ...data,
-    eventID: eventId
-  })
-
-  return eventId
+// Função para enviar eventos - apenas PageView é permitido e não envia de fato
+export function trackPixelEvent(
+  eventName: PixelEventType,
+  data: Record<string, any> = {}
+): string | null {
+  return metaPixel.trackEvent(eventName, data)
 }
 
 // Exporta uma instância única
-export const metaPixel = {
+export const metaPixelInstance = {
   initialize: initializePixel,
   track: trackPixelEvent
-} 
+}
