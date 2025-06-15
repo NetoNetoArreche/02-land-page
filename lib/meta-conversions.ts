@@ -116,40 +116,65 @@ class MetaConversionsAPI {
     }
   }
 
-  // Apenas o evento PageView é permitido
-  // Outros métodos estão desabilitados e retornam mensagens de erro
-  
   async viewContent(options: EventOptions = {}): Promise<void> {
-    console.warn('Evento ViewContent desativado - apenas PageView é permitido')
-    return
+    try {
+      const eventData = this.createEventData('ViewContent', options)
+      await this.sendEvent([eventData])
+      console.log('Evento ViewContent enviado com sucesso')
+    } catch (error) {
+      console.error('Erro ao enviar evento ViewContent:', error)
+      throw error
+    }
   }
 
   async addPaymentInfo(options: EventOptions = {}): Promise<void> {
-    console.warn('Evento AddPaymentInfo desativado - apenas PageView é permitido')
-    return
+    try {
+      const eventData = this.createEventData('AddPaymentInfo', options)
+      await this.sendEvent([eventData])
+      console.log('Evento AddPaymentInfo enviado com sucesso')
+    } catch (error) {
+      console.error('Erro ao enviar evento AddPaymentInfo:', error)
+      throw error
+    }
   }
 
   async initiateCheckout(options: EventOptions = {}): Promise<void> {
-    console.warn('Evento InitiateCheckout desativado - apenas PageView é permitido')
-    return
+    try {
+      const eventData = this.createEventData('InitiateCheckout', options)
+      await this.sendEvent([eventData])
+      console.log('Evento InitiateCheckout enviado com sucesso')
+    } catch (error) {
+      console.error('Erro ao enviar evento InitiateCheckout:', error)
+      throw error
+    }
   }
 
   async purchase(options: EventOptions = {}): Promise<void> {
-    console.warn('Evento Purchase desativado - apenas PageView é permitido')
-    return
+    try {
+      const eventData = this.createEventData('Purchase', options)
+      await this.sendEvent([eventData])
+      console.log('Evento Purchase enviado com sucesso')
+    } catch (error) {
+      console.error('Erro ao enviar evento Purchase:', error)
+      throw error
+    }
   }
 
   async findLocation(options: EventOptions = {}): Promise<void> {
-    console.warn('Evento FindLocation desativado - apenas PageView é permitido')
-    return
+    try {
+      const eventData = this.createEventData('FindLocation', options)
+      await this.sendEvent([eventData])
+      console.log('Evento FindLocation enviado com sucesso')
+    } catch (error) {
+      console.error('Erro ao enviar evento FindLocation:', error)
+      throw error
+    }
   }
 
-  // Método para testar a conexão com a API - apenas PageView
   async testConnection(): Promise<{ success: boolean; message: string }> {
     try {
-      // Cria um evento PageView para testar a conexão
       const testEvent: ConversionData = {
-        event_name: 'PageView' as StandardEvent, // Apenas PageView é permitido
+        event_name: 'PageView' as StandardEvent,
         event_time: Math.floor(Date.now() / 1000),
         action_source: 'website',
         user_data: this.prepareUserData()
@@ -159,7 +184,7 @@ class MetaConversionsAPI {
       
       return {
         success: true,
-        message: 'Pixel configurado (apenas PageView)'
+        message: 'Pixel configurado'
       }
     } catch (error) {
       return {
@@ -170,5 +195,4 @@ class MetaConversionsAPI {
   }
 }
 
-// Exporta uma instância única
-export const metaConversions = new MetaConversionsAPI() 
+export const metaConversions = new MetaConversionsAPI()

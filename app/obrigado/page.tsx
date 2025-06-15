@@ -10,18 +10,6 @@ export default function ThankYou() {
   const searchParams = useSearchParams()
  
   useEffect(() => {
-    // Não inicializa o pixel novamente, pois já foi inicializado no layout.tsx
-    const checkApiConnection = () => {
-      try {
-        // Apenas verifica a conexão com a API sem enviar eventos adicionais
-        metaConversions.testConnection()
-          .then(() => console.log('API de Conversões conectada'))
-          .catch(err => console.error('Erro na API de Conversões:', err))
-      } catch (error) {
-        console.error('Erro ao verificar API:', error)
-      }
-    }
-
     // Dispara confetti quando a página carrega
     const duration = 3 * 1000
     const animationEnd = Date.now() + duration
@@ -55,10 +43,21 @@ export default function ThankYou() {
       )
     }, 250)
 
-    // Verifica apenas a conexão com a API
-    checkApiConnection()
+    // Envia evento Purchase após a página carregar
+    const timer = setTimeout(() => {
+      if (typeof window !== 'undefined' && window.fbq) {
+        window.fbq('track', 'Purchase', {
+          currency: 'BRL',
+          value: 497.00
+        })
+        console.log('Evento Purchase enviado')
+      }
+    }, 2000)
 
-    return () => clearInterval(interval)
+    return () => {
+      clearInterval(interval)
+      clearTimeout(timer)
+    }
   }, [])
 
   return (
