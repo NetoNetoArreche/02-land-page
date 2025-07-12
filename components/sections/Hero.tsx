@@ -45,7 +45,7 @@ interface HeroContent {
 }
 
 const defaultHero: HeroContent = {
-  title: "Descubra o Poder do No Code e Construa Aplicativos e Sites Modernos em Poucos Dias!",
+  title: "PARE DE APENAS SONHAR! Crie Aplicativos e Sites do ZERO, em DIAS, Sem Uma Linha de Código – E COMECE A LUCRAR AGORA! ",
   subtitle: "Aprenda com ferramentas inovadoras como Bolt.new, Framer e muito mais. Transforme suas ideias em soluções reais sem escrever uma única linha de código avançado.",
   ctaText: "Quero Fazer Parte da Comunidade Agora!",
   ctaLink: "#pricing",

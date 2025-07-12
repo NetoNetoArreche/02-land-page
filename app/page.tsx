@@ -10,6 +10,9 @@ import Plans from '@/components/sections/Plans'
 import FAQ from '@/components/sections/FAQ'
 import FinalCTA from '@/components/sections/FinalCTA'
 import Community from '@/components/sections/Community'
+import Frustrations from '@/components/sections/Frustrations'
+import FullControl from '@/components/sections/FullControl'
+import ExclusiveSupport from '@/components/sections/ExclusiveSupport'
 
 export default function Home() {
   const { content, loading } = useRealtimeContent()
@@ -27,9 +30,12 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-black text-white">
       <Hero />
+      <Frustrations />
       <Community />
+      <ExclusiveSupport />
       <Benefits />
       <Curriculum />
+      <FullControl />
       <Projects />
       <Testimonials />
       <Plans />
