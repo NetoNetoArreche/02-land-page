@@ -16,20 +16,20 @@ export default function FullControl() {
           <div className="flex flex-col md:grid md:grid-cols-2 gap-8 items-center">
             {/* Left side - Text content */}
             <div className="space-y-8 w-full z-10">
-              <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-xl shadow-xl shadow-blue-500/20 transform transition-all duration-300 hover:scale-105 border border-white/10">
-                <h3 className="text-2xl md:text-3xl font-bold mb-4 text-white">
+              <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-4 sm:p-6 rounded-xl shadow-xl shadow-blue-500/20 transform transition-all duration-300 hover:scale-105 border border-white/10">
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-4 text-white">
                   <span className="text-yellow-300">Liberdade Total!</span> Domine o Frontend e o Backend
                 </h3>
-                <p className="text-gray-200 text-lg">
+                <p className="text-gray-200 text-sm sm:text-base md:text-lg">
                   Domine o Frontend (o que o usuário vê) e o Backend (o "cérebro" do seu app) para ter <span className="font-bold text-white">CONTROLE ABSOLUTO</span> sobre suas criações.
                 </p>
               </div>
               
-              <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 rounded-xl shadow-xl shadow-purple-500/20 transform transition-all duration-300 hover:scale-105 border border-white/10">
-                <h3 className="text-2xl md:text-3xl font-bold mb-4 text-white">
+              <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-4 sm:p-6 rounded-xl shadow-xl shadow-purple-500/20 transform transition-all duration-300 hover:scale-105 border border-white/10">
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-4 text-white">
                   <span className="text-yellow-300">Dados no seu Bolso!</span> Gerencie como um PRO
                 </h3>
-                <p className="text-gray-200 text-lg">
+                <p className="text-gray-200 text-sm sm:text-base md:text-lg">
                   Gerencie bancos de dados como um <span className="font-bold text-white">PRO</span>, garantindo a segurança e eficiência dos seus aplicativos.
                 </p>
               </div>
@@ -99,9 +99,9 @@ const { data, error } = await supabase
           </div>
           
           {/* Bottom call to action */}
-          <div className="mt-12 text-center">
-            <div className="inline-block bg-gradient-to-r from-blue-500/20 to-purple-500/20 p-4 rounded-xl border border-white/10 backdrop-blur-sm">
-              <p className="text-xl text-white">
+          <div className="mt-8 sm:mt-12 text-center">
+            <div className="inline-block bg-gradient-to-r from-blue-500/20 to-purple-500/20 p-3 sm:p-4 rounded-xl border border-white/10 backdrop-blur-sm">
+              <p className="text-sm sm:text-base md:text-xl text-white">
                 <span className="font-bold text-blue-300">Pare de depender de terceiros</span> e comece a criar seus próprios projetos com <span className="font-bold text-purple-300">total autonomia!</span>
               </p>
             </div>

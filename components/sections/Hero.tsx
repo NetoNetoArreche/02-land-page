@@ -281,9 +281,9 @@ export default function Hero() {
   }[localHero.elementsAlignment || 'center']
 
   const titleClasses = {
-    small: 'text-3xl sm:text-4xl lg:text-5xl',
-    medium: 'text-4xl sm:text-5xl lg:text-6xl',
-    large: 'text-5xl sm:text-6xl lg:text-7xl'
+    small: 'text-2xl sm:text-3xl lg:text-5xl',
+    medium: 'text-3xl sm:text-4xl lg:text-6xl',
+    large: 'text-3xl sm:text-5xl lg:text-7xl'
   }[localHero.titleSize || 'large']
 
   const ctaClasses = {
@@ -438,6 +438,7 @@ export default function Hero() {
                 textAlign: heroContent.elementsAlignment || 'center',
                 color: heroContent.titleColor,
                 textShadow: '0 0 20px rgba(59,130,246,0.5), 0 0 40px rgba(59,130,246,0.25)',
+                fontSize: 'clamp(1.75rem, 5vw, 4rem)' // Tamanho responsivo que se adapta à largura da tela
               }}
             >
               {heroContent.title}
@@ -445,11 +446,12 @@ export default function Hero() {
 
             {/* Hero Subtitle */}
             <p
-              className="text-lg sm:text-xl md:text-2xl mb-8 sm:mb-10 md:mb-12"
+              className="text-base sm:text-lg md:text-xl mb-8 sm:mb-10 md:mb-12"
               style={{ 
                 textAlign: heroContent.elementsAlignment || 'center',
                 color: heroContent.subtitleColor,
-                textShadow: '0 0 10px rgba(59, 130, 246, 0.3)'
+                textShadow: '0 0 10px rgba(59, 130, 246, 0.3)',
+                fontSize: 'clamp(1rem, 3vw, 1.5rem)' // Tamanho responsivo para o subtítulo
               }}
             >
               {heroContent.subtitle}
@@ -463,7 +465,7 @@ export default function Hero() {
                   e.preventDefault();
                   scrollToPlans();
                 }}
-                className="group relative px-8 py-4 rounded-xl text-lg font-semibold overflow-hidden transition-all duration-300 hover:scale-105 bg-gradient-to-r from-blue-500 to-purple-500 hover:opacity-90"
+                className="group relative px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-base sm:text-lg font-semibold overflow-hidden transition-all duration-300 hover:scale-105 bg-gradient-to-r from-blue-500 to-purple-500 hover:opacity-90"
               >
                 <span className="relative text-white">
                   {heroContent.ctaText}
@@ -473,11 +475,11 @@ export default function Hero() {
           </div>
 
           {/* Tech Stack Pills */}
-          <div className={`flex flex-wrap gap-4 ${alignmentClasses} mb-12`}>
+          <div className={`flex flex-wrap gap-3 sm:gap-4 ${alignmentClasses} mb-12`}>
             {heroContent.tags?.map((tech, index) => (
               <span
                 key={index}
-                className="px-6 py-2 bg-gradient-to-r from-blue-500/10 to-purple-500/10 text-blue-400 rounded-full text-lg border border-blue-500/20 hover:border-blue-400/40 transition-all duration-300 hover:scale-105"
+                className="px-4 sm:px-6 py-1 sm:py-2 bg-gradient-to-r from-blue-500/10 to-purple-500/10 text-blue-400 rounded-full text-sm sm:text-base md:text-lg border border-blue-500/20 hover:border-blue-400/40 transition-all duration-300 hover:scale-105"
               >
                 {tech}
               </span>
@@ -485,13 +487,13 @@ export default function Hero() {
           </div>
 
           {/* Highlight Box */}
-          <div className={`mt-20 ${alignmentClasses}`}>
+          <div className={`mt-12 sm:mt-20 ${alignmentClasses}`}>
             <div className="inline-block transform hover:scale-105 transition-all duration-300">
-              <div className="p-6 sm:p-8 glass neon-border rounded-2xl">
-                <div className="flex items-center gap-4">
-                  <span className="text-3xl sm:text-4xl animate-bounce">⚡</span>
+              <div className="p-4 sm:p-6 md:p-8 glass neon-border rounded-2xl">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <span className="text-2xl sm:text-3xl md:text-4xl animate-bounce">⚡</span>
                   <div>
-                    <p className="text-lg sm:text-2xl">
+                    <p className="text-base sm:text-lg md:text-2xl">
                       <span className="gradient-text font-bold">
                         {heroContent.offer?.title || "Oferta Especial de Lançamento"}
                       </span>
