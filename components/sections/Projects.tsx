@@ -66,6 +66,7 @@ const TickerComponent = memo(({ projects }: { projects: any[] }) => {
                   height={384}
                   className="w-full h-full object-cover"
                   onError={(e: any) => {
+                    console.error('Erro ao carregar imagem:', project.image)
                     // Fallback para placeholder colorido se imagem falhar
                     e.target.style.display = 'none'
                     e.target.nextSibling.style.display = 'flex'
