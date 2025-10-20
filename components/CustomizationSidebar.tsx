@@ -406,7 +406,7 @@ export default function CustomizationSidebar({
             <label className="block text-xs text-gray-400">Título da Seção</label>
             <input
               type="text"
-              value={localContent.whyJoin?.title || 'Por que fazer parte da Comunidade IAcode?'}
+              value={localContent.whyJoin?.title || 'Por que fazer parte da Comunidade Vibe Coding?'}
               onChange={(e) => {
                 const newContent = {
                   ...localContent,

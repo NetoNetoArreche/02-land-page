@@ -3,33 +3,144 @@
 import Image from 'next/image'
 import { useRealtimeContent } from '@/hooks/useRealtimeContent'
 import { useAuth } from '@/hooks/useAuth'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo, useRef } from 'react'
+import { motion } from 'framer-motion'
 import ProjectsCustomizationSidebar from '../ProjectsCustomizationSidebar'
 import { createClient } from '@/lib/supabase-browser'
 
+// Componente Ticker que usa dados do banco
+const TickerComponent = memo(({ projects }: { projects: any[] }) => {
+  const tickerRef = useRef<HTMLDivElement>(null)
+  const [isPaused, setIsPaused] = useState(false)
+  const animationIdRef = useRef<number>()
+  const currentTranslateRef = useRef(0) // Manter posição entre pausas
+
+  useEffect(() => {
+    const ticker = tickerRef.current
+    if (!ticker) return
+
+    const tickerWidth = ticker.scrollWidth / 2 // Metade porque duplicamos
+    
+    const animate = () => {
+      if (!isPaused) {
+        currentTranslateRef.current -= 0.5 // Velocidade do movimento (pixels por frame)
+        
+        // Reset seamless quando chega na metade
+        if (Math.abs(currentTranslateRef.current) >= tickerWidth) {
+          currentTranslateRef.current = 0
+        }
+        
+        ticker.style.transform = `translateX(${currentTranslateRef.current}px)`
+      }
+      
+      animationIdRef.current = requestAnimationFrame(animate)
+    }
+    
+    animationIdRef.current = requestAnimationFrame(animate)
+    
+    return () => {
+      if (animationIdRef.current) {
+        cancelAnimationFrame(animationIdRef.current)
+      }
+    }
+  }, [projects, isPaused])
+
+  return (
+    <div 
+      className="sticky top-20 z-20 mb-12 w-full overflow-hidden"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
+      <div className="relative overflow-hidden py-8 w-screen -ml-[50vw] left-1/2 max-w-none">
+        <div ref={tickerRef} className="flex gap-8">
+          {[...projects, ...projects].map((project, index) => (
+            <div
+              key={index}
+              className="flex-shrink-0"
+            >
+              <div className="w-64 h-96 rounded-lg overflow-hidden border border-slate-700/30 hover:border-blue-500/50 transition-colors duration-300 shadow-md">
+                <Image
+                  src={project.image || '/placeholder.jpg'}
+                  alt={project.title}
+                  width={256}
+                  height={384}
+                  className="w-full h-full object-cover"
+                  onError={(e: any) => {
+                    // Fallback para placeholder colorido se imagem falhar
+                    e.target.style.display = 'none'
+                    e.target.nextSibling.style.display = 'flex'
+                  }}
+                />
+                <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center" style={{ display: 'none' }}>
+                  <div className="text-center p-6">
+                    <h3 className="text-white font-bold text-xl mb-2">{project.title}</h3>
+                    <div className="w-16 h-16 bg-white/20 rounded-full mx-auto flex items-center justify-center">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H3m2 0h3M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        {/* Gradient Overlays */}
+        <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-slate-900 to-transparent pointer-events-none z-10" />
+        <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-slate-900 to-transparent pointer-events-none z-10" />
+      </div>
+    </div>
+  )
+})
+
+TickerComponent.displayName = 'TickerComponent'
+
 const defaultProjects = {
   title: "Veja o que Você Será Capaz de Construir!",
+  subtitle: "Projetos reais criados por membros da nossa comunidade",
   items: [
     {
       title: "Plataforma de Gestão em Saúde",
       description: "Sistema especializado para psicólogos, psiquiatras e nutricionistas",
       image: "/projects/health.jpg",
       tech: ["Next.js", "Supabase", "Vercel"],
-      isRecording: true
+      category: "SaaS"
     },
     {
       title: "Landing Page Completa",
       description: "Página moderna e responsiva com hospedagem profissional",
       image: "/projects/landing.jpg",
       tech: ["Next.js", "Tailwind CSS", "Vercel"],
-      isRecording: false
+      category: "Website"
     },
     {
       title: "Dashboard SaaS",
       description: "Sistema profissional de análise e gestão",
       image: "/projects/dashboard.jpg",
       tech: ["React", "Charts.js", "REST API"],
-      isRecording: true
+      category: "Dashboard"
+    },
+    {
+      title: "E-commerce Moderno",
+      description: "Loja virtual completa com pagamentos integrados",
+      image: "/projects/ecommerce.jpg",
+      tech: ["Next.js", "Stripe", "Prisma"],
+      category: "E-commerce"
+    },
+    {
+      title: "App Mobile Híbrido",
+      description: "Aplicativo multiplataforma com React Native",
+      image: "/projects/mobile.jpg",
+      tech: ["React Native", "Expo", "Firebase"],
+      category: "Mobile"
+    },
+    {
+      title: "Sistema de CRM",
+      description: "Gestão completa de relacionamento com clientes",
+      image: "/projects/crm.jpg",
+      tech: ["Vue.js", "Node.js", "MongoDB"],
+      category: "CRM"
     }
   ]
 }
@@ -39,15 +150,17 @@ export default function Projects() {
   const { isAdmin } = useAuth()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [localProjects, setLocalProjects] = useState(defaultProjects)
+  
 
-  // Atualizar projetos locais quando o conteúdo mudar
+  // Usar projetos estáticos para o ticker (evita re-renders)
+  const tickerProjects = defaultProjects.items
+  
+  // Atualizar projetos locais quando o conteúdo mudar (só para admin)
   useEffect(() => {
-    console.log('Content atualizado:', content)
-    if (content?.projects) {
-      console.log('Projects atualizados:', content.projects)
+    if (content?.projects && isAdmin) {
       setLocalProjects(content.projects)
     }
-  }, [content])
+  }, [content, isAdmin])
 
   const handlePreview = (newContent: any) => {
     console.log('Preview novo conteúdo:', newContent)
@@ -111,19 +224,19 @@ export default function Projects() {
 
   if (loading) {
     return (
-      <section className="py-32 relative overflow-hidden">
+      <section className="py-16 sm:py-20 lg:py-24 relative">
         <div className="container mx-auto px-4 text-center">
           <div className="animate-pulse">
-            <div className="h-8 bg-gray-700 rounded w-3/4 mx-auto mb-8" />
+            <div className="h-8 bg-slate-700 rounded w-3/4 mx-auto mb-8" />
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="bg-gray-800 rounded-xl p-6">
-                  <div className="h-48 bg-gray-700 rounded mb-4" />
-                  <div className="h-6 bg-gray-700 rounded w-3/4 mb-4" />
-                  <div className="h-20 bg-gray-700 rounded w-full mb-4" />
+                <div key={i} className="bg-slate-800 rounded-xl p-6">
+                  <div className="h-48 bg-slate-700 rounded mb-4" />
+                  <div className="h-6 bg-slate-700 rounded w-3/4 mb-4" />
+                  <div className="h-20 bg-slate-700 rounded w-full mb-4" />
                   <div className="flex flex-wrap gap-2">
                     {[...Array(3)].map((_, j) => (
-                      <div key={j} className="h-6 w-20 bg-gray-700 rounded-full" />
+                      <div key={j} className="h-6 w-20 bg-slate-700 rounded-full" />
                     ))}
                   </div>
                 </div>
@@ -136,139 +249,57 @@ export default function Projects() {
   }
 
   return (
-    <section className="py-32 relative overflow-hidden">
-      {/* Enhanced Background Effects */}
-      <div className="absolute inset-0">
-        {/* Base gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-black/95 to-black" />
-        
-        {/* Grid Pattern */}
-        <div 
-          className="absolute inset-0 opacity-[0.15]"
-          style={{
-            backgroundImage: `
-              linear-gradient(to right, rgba(99, 102, 241, 0.03) 1px, transparent 1px),
-              linear-gradient(to bottom, rgba(99, 102, 241, 0.03) 1px, transparent 1px)
-            `,
-            backgroundSize: '60px 60px',
-            maskImage: 'radial-gradient(circle at center, black, transparent 80%)'
-          }}
-        />
-
-        {/* Animated Gradient Orbs */}
-        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-500/10 rounded-full mix-blend-screen filter blur-[80px] animate-pulse" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-500/10 rounded-full mix-blend-screen filter blur-[80px] animate-pulse delay-1000" />
-      </div>
-      
-      <div className="container mx-auto px-4 relative">
-        {/* Enhanced Section Title with Edit Button */}
-        <div className="flex flex-col items-center gap-4 mb-24 relative">
-          {localProjects.title.split('|').map((part, index) => (
-            <h2 
-              key={index}
-              className="text-4xl sm:text-5xl lg:text-6xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 animate-gradient-x"
-              style={{
-                textShadow: '0 0 30px rgba(59, 130, 246, 0.5)'
-              }}
-            >
-              {part}
-            </h2>
-          ))}
+    <section id="projects" className="py-16 sm:py-20 lg:py-24 relative">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Header */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-12 sm:mb-16 lg:mb-20 relative"
+        >
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold mb-4 sm:mb-6 text-white">
+            {localProjects.title}
+          </h2>
+          <p className="text-base sm:text-lg lg:text-xl text-slate-400 leading-relaxed max-w-3xl mx-auto">
+            {localProjects.subtitle}
+          </p>
+          
+          {/* Admin Button */}
           {isAdmin && (
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="absolute right-0 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 transition-colors z-10"
+              className="absolute top-0 right-0 p-3 rounded-xl bg-white shadow-lg hover:shadow-xl text-slate-700 border border-slate-200 transition-all duration-300 hover:scale-105 z-10"
               title="Personalizar Seção"
             >
-              <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
               </svg>
             </button>
           )}
-        </div>
+        </motion.div>
 
-        {/* Enhanced Projects Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {localProjects.items.map((project, index) => (
-            <div
-              key={index}
-              className="group relative bg-gradient-to-b from-blue-500/10 to-purple-500/10 p-8 rounded-2xl backdrop-blur-sm transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/20"
-              style={{
-                border: '1px solid rgba(59, 130, 246, 0.2)'
-              }}
-            >
-              {/* Hover effect background */}
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 to-purple-500/0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 rounded-2xl" />
-              
-              {/* Project Image with enhanced container */}
-              <div className="relative w-full h-48 mb-6 rounded-xl overflow-hidden group-hover:shadow-lg group-hover:shadow-blue-500/20 transition-shadow duration-300">
-                {project.isRecording && (
-                  <div className="absolute top-2 right-2 z-10 bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-1 rounded-full text-sm font-medium animate-pulse">
-                    Em Gravação
-                  </div>
-                )}
-                {project.image.startsWith('/') ? (
-                  <Image
-                    src={project.image}
-                    alt={project.title}
-                    width={400}
-                    height={300}
-                    className="object-cover transform group-hover:scale-110 transition-transform duration-500"
-                  />
-                ) : (
-                  <div className="relative w-full h-full">
-                    <Image
-                      src={project.image}
-                      alt={project.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      className="object-cover transform group-hover:scale-110 transition-transform duration-500"
-                      onError={(e: any) => {
-                        console.error('Erro ao carregar imagem:', project.image)
-                        e.target.src = '/projects/default.jpg'
-                      }}
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* Project Title with gradient effect */}
-              <h3 className="text-xl sm:text-2xl font-bold mb-4 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
-                {project.title}
-              </h3>
-
-              {/* Project Description with enhanced readability */}
-              <p className="text-base sm:text-lg text-gray-300 leading-relaxed mb-6">
-                {project.description}
-              </p>
-
-              {/* Enhanced Tech Stack */}
-              <div className="flex flex-wrap gap-2">
-                {project.tech.map((tech, techIndex) => (
-                  <span
-                    key={techIndex}
-                    className="px-4 py-1.5 bg-gradient-to-r from-blue-500/10 to-purple-500/10 text-blue-300 rounded-full text-sm font-medium border border-blue-500/20 hover:border-blue-500/40 hover:text-blue-200 transition-colors duration-300"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Enhanced "E muito mais..." text */}
-        <div className="text-center mt-16">
-          <p className="text-2xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent animate-gradient-x italic">
-            E muito mais...
-          </p>
-        </div>
       </div>
 
-      {/* Enhanced decorative bottom border */}
-      <div className="absolute bottom-0 left-0 right-0">
-        <div className="h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
-        <div className="h-px mt-1 bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
+      {/* Ticker com dados do banco */}
+      <TickerComponent projects={localProjects.items} />
+
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+
+
+        {/* Enhanced "E muito mais..." text */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="text-center mt-16"
+        >
+          <p className="text-2xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent italic">
+            E muito mais...
+          </p>
+        </motion.div>
       </div>
 
       {/* Customization Sidebar */}

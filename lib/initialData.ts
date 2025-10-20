@@ -5,7 +5,7 @@ export const initialContent = {
     ctaText: "Quero Fazer Parte da Comunidade Agora!"
   },
   benefits: {
-    title: "Por que fazer parte da Comunidade IAcode?",
+    title: "Por que fazer parte da Comunidade Vibe Coding?",
     items: [
       {
         icon: "🌟",
@@ -169,7 +169,7 @@ export const initialContent = {
     ]
   },
   finalCta: {
-    title: "Junte-se Agora à Comunidade IAcode",
+    title: "Junte-se Agora à Comunidade Vibe Coding",
     benefits: [
       "Acesso imediato aos cursos",
       "Ferramentas e projetos práticos",

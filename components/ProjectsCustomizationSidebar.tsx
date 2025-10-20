@@ -187,7 +187,7 @@ export default function ProjectsCustomizationSidebar({
             )}
 
             {/* Título Principal */}
-            <div className="mb-8">
+            <div className="mb-6">
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Título da Seção
               </label>
@@ -197,6 +197,21 @@ export default function ProjectsCustomizationSidebar({
                 onChange={(e) => handleChange('title', e.target.value)}
                 className="w-full bg-white/5 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none border border-white/10"
                 disabled={loading}
+              />
+            </div>
+
+            {/* Subtítulo */}
+            <div className="mb-8">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Subtítulo da Seção
+              </label>
+              <textarea
+                value={editingContent.subtitle || ''}
+                onChange={(e) => handleChange('subtitle', e.target.value)}
+                className="w-full bg-white/5 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none border border-white/10"
+                rows={2}
+                disabled={loading}
+                placeholder="Digite o subtítulo da seção..."
               />
             </div>
 

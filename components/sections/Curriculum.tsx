@@ -1,9 +1,11 @@
 'use client'
 
+import { useState, useEffect, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useRealtimeContent } from '@/hooks/useRealtimeContent'
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase-browser'
-import EditableSection from '../EditableSection'
+import CurriculumCustomizationSidebar from '../CurriculumCustomizationSidebar'
 
 interface CurriculumSection {
   title: string;
@@ -15,25 +17,131 @@ interface CurriculumData {
   sections: CurriculumSection[];
 }
 
+// Componente Accordion/Dropdown
+const AccordionSection = ({ section, index }: { 
+  section: CurriculumSection, 
+  index: number
+}) => {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ delay: index * 0.1, duration: 0.6 }}
+      className="relative bg-slate-800/30 rounded-2xl border border-slate-700/50 overflow-hidden"
+    >
+      {/* Header clicável */}
+      <motion.div 
+        className="flex items-center justify-between p-6 cursor-pointer hover:bg-slate-700/20 transition-colors duration-200"
+        onClick={() => setIsOpen(!isOpen)}
+        whileHover={{ scale: 1.01 }}
+        whileTap={{ scale: 0.99 }}
+      >
+        <div className="flex items-center gap-4">
+          <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30">
+            <span className="text-lg font-bold text-cyan-400">
+              {(index + 1).toString().padStart(2, '0')}
+            </span>
+          </div>
+          <h3 className="text-xl sm:text-2xl font-bold text-white">
+            {section.title}
+          </h3>
+        </div>
+        
+        {/* Ícone de seta */}
+        <motion.div
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
+          className="text-cyan-400"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </motion.div>
+      </motion.div>
+      
+      {/* Conteúdo expansível */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ 
+              height: "auto", 
+              opacity: 1,
+              transition: {
+                height: { duration: 0.4, ease: "easeInOut" },
+                opacity: { duration: 0.3, delay: 0.1 }
+              }
+            }}
+            exit={{ 
+              height: 0, 
+              opacity: 0,
+              transition: {
+                height: { duration: 0.4, ease: "easeInOut" },
+                opacity: { duration: 0.2 }
+              }
+            }}
+            className="overflow-hidden"
+          >
+            <div className="px-6 pb-6">
+              <motion.div 
+                className="space-y-3 pl-16"
+                variants={{
+                  hidden: { opacity: 0 },
+                  visible: {
+                    opacity: 1,
+                    transition: {
+                      staggerChildren: 0.05
+                    }
+                  }
+                }}
+                initial="hidden"
+                animate="visible"
+              >
+                {section.items.map((item, itemIndex) => (
+                  <motion.div
+                    key={itemIndex}
+                    variants={{
+                      hidden: { opacity: 0, x: -15 },
+                      visible: { opacity: 1, x: 0 }
+                    }}
+                    className="flex items-center gap-4 group hover:bg-slate-700/20 p-3 rounded-lg transition-all duration-200"
+                  >
+                    <div className="w-2 h-2 rounded-full bg-cyan-400/70" />
+                    <span className="text-slate-300 group-hover:text-white transition-colors duration-200 text-base">
+                      {item}
+                    </span>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  )
+}
+
 const defaultCurriculum: CurriculumData = {
-  title: "Domine as Ferramentas|Mais Poderosas do No Code e Além!",
+  title: "Domine as Ferramentas|Mais Poderosas!",
   sections: [
     {
       title: "Ferramentas de Desenvolvimento",
       items: [
-        "Bolt.new",
-        "Windsurf Editor",
+        "Lovable",
+        "Windsurf Editor", 
         "Cursor AI",
-        "GPTEngineers",
-        "Framer",
-        "Integração Git"
+        "Bolt.New",
+        "Github Copilot"
       ]
     },
     {
       title: "Frontend & Design",
       items: [
         "React/Next.js",
-        "Tailwind CSS",
+        "Tailwind CSS", 
         "Framer Motion",
         "Figma",
         "Design Responsivo"
@@ -42,8 +150,8 @@ const defaultCurriculum: CurriculumData = {
     {
       title: "Backend & Banco de Dados",
       items: [
-        "Firebase",
-        "Supabase",
+        "Firebase com IA",
+        "Supabase com IA",
         "Vercel",
         "PostgreSQL"
       ]
@@ -52,8 +160,9 @@ const defaultCurriculum: CurriculumData = {
       title: "Comunidade & Suporte",
       items: [
         "Circle Exclusivo",
-        "Eventos ao Vivo",
-        "Networking"
+        "Eventos ao Vivo", 
+        "Networking",
+        "Code Reviews"
       ]
     }
   ]
@@ -62,189 +171,148 @@ const defaultCurriculum: CurriculumData = {
 export default function Curriculum() {
   const { content } = useRealtimeContent()
   const { isAdmin } = useAuth()
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [localCurriculum, setLocalCurriculum] = useState(defaultCurriculum)
 
-  const handleSave = async (path: string, value: string) => {
-    if (!content) return
+  // Atualizar curriculum local quando o conteúdo mudar
+  useEffect(() => {
+    const initializeCurriculum = async () => {
+      try {
+        const supabase = createClient()
+        
+        // Sempre atualizar com os novos defaultCurriculum
+        const { data: updateData, error: updateError } = await supabase
+          .from('site_content')
+          .upsert({
+            id: 1,
+            curriculum: defaultCurriculum
+          })
+          .select()
+          .single()
 
-    try {
-      const supabase = createClient()
-      const [section, index, subIndex, field] = path.split('.')
-      
-      let newContent: any = { ...content }
-      
-      if (index) {
-        newContent[section].sections = [...content[section].sections]
-        if (subIndex) {
-          // Editando um item específico da lista
-          newContent[section].sections[parseInt(index)].items = [
-            ...content[section].sections[parseInt(index)].items
-          ]
-          newContent[section].sections[parseInt(index)].items[parseInt(subIndex)] = value
-        } else {
-          // Editando o título da seção
-          newContent[section].sections[parseInt(index)][field] = value
-        }
-      } else {
-        // Editando o título principal
-        newContent[section] = {
-          ...content[section],
-          [field]: value
-        }
+        if (updateError) throw updateError
+        console.log('Curriculum atualizado:', updateData)
+        setLocalCurriculum(defaultCurriculum)
+      } catch (error) {
+        console.error('Erro ao atualizar curriculum:', error)
+        setLocalCurriculum(defaultCurriculum)
       }
+    }
 
-      const { error } = await supabase
+    if (content?.curriculum) {
+      setLocalCurriculum(content.curriculum)
+    } else {
+      initializeCurriculum()
+    }
+  }, [content])
+
+  const handleSave = async (newCurriculum: any) => {
+    try {
+      console.log('Salvando novo curriculum:', newCurriculum)
+      const supabase = createClient()
+      
+      const { data, error } = await supabase
         .from('site_content')
-        .update(newContent)
-        .eq('id', content.id)
+        .upsert({
+          id: 1,
+          curriculum: newCurriculum
+        })
+        .select()
+        .single()
 
       if (error) throw error
+      
+      console.log('Dados salvos:', data)
+      if (data?.curriculum) {
+        setLocalCurriculum(data.curriculum)
+      }
     } catch (error) {
       console.error('Erro ao salvar:', error)
     }
   }
 
-  // Use o conteúdo do banco ou o conteúdo padrão
-  const curriculum = content?.curriculum || defaultCurriculum
-
   return (
-    <section className="py-32 relative overflow-hidden">
-      {/* Enhanced Background Effects */}
-      <div className="absolute inset-0">
-        {/* Base gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-black/95 to-black" />
-        
-        {/* Grid Pattern */}
-        <div 
-          className="absolute inset-0 opacity-[0.15]"
-          style={{
-            backgroundImage: `
-              linear-gradient(to right, rgba(99, 102, 241, 0.03) 1px, transparent 1px),
-              linear-gradient(to bottom, rgba(99, 102, 241, 0.03) 1px, transparent 1px)
-            `,
-            backgroundSize: '60px 60px',
-            maskImage: 'radial-gradient(circle at center, black, transparent 80%)'
-          }}
-        />
-
-        {/* Animated Gradient Orbs */}
-        <div className="absolute top-1/4 -left-48 w-[600px] h-[600px] bg-blue-500/10 rounded-full mix-blend-screen filter blur-[100px] animate-pulse" />
-        <div className="absolute bottom-1/4 -right-48 w-[600px] h-[600px] bg-purple-500/10 rounded-full mix-blend-screen filter blur-[100px] animate-pulse delay-1000" />
-      </div>
+    <motion.section 
+      id="curriculum"
+      ref={containerRef}
+      className="py-16 sm:py-20 lg:py-24 relative"
+    >
+      {/* Botão Admin */}
+      {isAdmin && (
+        <button
+          onClick={() => setIsSidebarOpen(true)}
+          className="absolute top-4 right-4 p-3 rounded-xl bg-white shadow-lg hover:shadow-xl text-slate-700 border border-slate-200 transition-all duration-300 hover:scale-105 z-10"
+          title="Personalizar Seção"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+          </svg>
+        </button>
+      )}
       
-      <div className="container mx-auto px-4 relative">
-        {/* Enhanced Section Title */}
-        <div className="flex flex-col items-center gap-4 mb-24">
-          {curriculum.title.split('|').map((part: string, index: number) => (
-            <h2 
-              key={index}
-              className="text-4xl sm:text-5xl lg:text-6xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 animate-gradient-x"
-              style={{
-                textShadow: '0 0 30px rgba(59, 130, 246, 0.5)'
-              }}
-            >
-              {isAdmin ? (
-                <EditableSection
-                  path={`curriculum.title.${index}`}
-                  content={part}
-                  onSave={handleSave}
-                  className="text-4xl sm:text-5xl lg:text-6xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 animate-gradient-x"
-                />
-              ) : (
-                part
-              )}
-            </h2>
-          ))}
-        </div>
-
-        {/* Novo Layout do Currículo */}
-        <div className="relative">
-          {/* Linha central decorativa */}
-          <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-blue-500/50 via-purple-500/50 to-blue-500/50 hidden lg:block" />
-          
-          <div className="space-y-16">
-            {curriculum.sections.map((section: CurriculumSection, sectionIndex: number) => (
-              <div 
-                key={sectionIndex}
-                className={`flex flex-col lg:flex-row items-center lg:items-start gap-8 ${
-                  sectionIndex % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'
-                }`}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="max-w-7xl mx-auto">
+          {/* Header Animado */}
+          <motion.div 
+            className="text-center mb-12 sm:mb-16 lg:mb-20"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.8 }}
+          >
+            {localCurriculum.title.split('|').map((part: string, index: number) => (
+              <motion.h2 
+                key={index}
+                className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold mb-2"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.2, duration: 0.6 }}
               >
-                {/* Título da Seção */}
-                <div className={`w-full lg:w-1/3 text-center ${
-                  sectionIndex % 2 === 0 ? 'lg:text-right lg:pr-8' : 'lg:text-left lg:pl-8'
-                }`}>
-                  <div className="relative inline-block">
-                    <h4 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent mb-4">
-                      {isAdmin ? (
-                        <EditableSection
-                          path={`curriculum.${sectionIndex}.title`}
-                          content={section.title}
-                          onSave={handleSave}
-                          className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent"
-                        />
-                      ) : (
-                        section.title
-                      )}
-                    </h4>
-                    {/* Número da Seção */}
-                    <span className="absolute -top-6 -left-4 text-6xl font-bold text-blue-500/10">
-                      {(sectionIndex + 1).toString().padStart(2, '0')}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Marcador Central */}
-                <div className="hidden lg:block w-12 relative">
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                    <div className="w-4 h-4 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 ring-4 ring-blue-500/20" />
-                  </div>
-                </div>
-
-                {/* Lista de Items */}
-                <div className={`w-full lg:w-1/2 bg-gradient-to-b from-blue-500/10 to-purple-500/10 rounded-2xl backdrop-blur-sm p-8 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/20 group ${
-                  sectionIndex % 2 === 0 ? 'lg:text-left' : 'lg:text-left'
-                }`}
-                style={{
-                  border: '1px solid rgba(59, 130, 246, 0.2)'
-                }}>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    {section.items.map((item: string, itemIndex: number) => (
-                      <div 
-                        key={itemIndex}
-                        className="flex items-start gap-4 group/item bg-white/5 p-4 rounded-xl hover:bg-white/10 transition-all duration-300"
-                      >
-                        <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500/20 to-purple-500/20 flex items-center justify-center group-hover/item:from-blue-500/30 group-hover/item:to-purple-500/30 transition-all duration-300">
-                          <svg className="w-4 h-4 text-blue-400 group-hover/item:text-blue-300 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                          </svg>
-                        </span>
-                        <span className="text-gray-300 group-hover/item:text-white transition-colors duration-300 font-medium">
-                          {isAdmin ? (
-                            <EditableSection
-                              path={`curriculum.${sectionIndex}.${itemIndex}.item`}
-                              content={item}
-                              onSave={handleSave}
-                              className="text-gray-300 group-hover/item:text-white transition-colors duration-300"
-                            />
-                          ) : (
-                            item
-                          )}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+                {index === 1 ? (
+                  <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-300 bg-clip-text text-transparent">
+                    {part}
+                  </span>
+                ) : (
+                  <span className="text-white">{part}</span>
+                )}
+              </motion.h2>
             ))}
+            
+            <motion.p 
+              className="text-base sm:text-lg lg:text-xl text-slate-400 leading-relaxed max-w-3xl mx-auto mt-6"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4, duration: 0.6 }}
+            >
+              Ferramentas e tecnologias que você vai dominar na nossa comunidade
+            </motion.p>
+          </motion.div>
+
+          {/* Layout Vertical - Um embaixo do outro */}
+          <div className="max-w-4xl mx-auto">
+            <div className="space-y-6">
+              {localCurriculum.sections.map((section: CurriculumSection, index: number) => (
+                <AccordionSection 
+                  key={index}
+                  section={section}
+                  index={index}
+                />
+              ))}
+            </div>
           </div>
         </div>
-
-        {/* Enhanced Decorative Bottom Border */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <div className="h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
-          <div className="h-px mt-1 bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
-        </div>
       </div>
-    </section>
+
+      {/* Customization Sidebar */}
+      <CurriculumCustomizationSidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        content={localCurriculum}
+        onSave={handleSave}
+      />
+    </motion.section>
   )
 }

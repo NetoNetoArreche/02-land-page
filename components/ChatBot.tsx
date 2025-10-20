@@ -116,7 +116,7 @@ export default function ChatBot() {
         break
       case 'como funciona':
       case 'ver conteúdos':
-        handleBotResponse('Na Comunidade IACode você terá acesso a:\n\n• Tutoriais passo a passo\n• Templates exclusivos\n• Suporte da comunidade\n• Atualizações semanais\n\nQuer saber mais?', [
+        handleBotResponse('Na Comunidade Vibe Coding você terá acesso a:\n\n• Tutoriais passo a passo\n• Templates exclusivos\n• Suporte da comunidade\n• Atualizações semanais\n\nQuer saber mais?', [
           'Fazer inscrição',
           'Ver preços',
           'Falar com atendente'
@@ -129,7 +129,7 @@ export default function ChatBot() {
         ])
         break
       case 'falar com atendente':
-        window.open('https://wa.me/5511999999999?text=Olá! Vim pelo site e gostaria de mais informações sobre a Comunidade IACode.', '_blank')
+        window.open('https://wa.me/5511988207977?text=Olá! Vim pelo site e gostaria de mais informações sobre a Comunidade Vibe Coding.', '_blank')
         handleBotResponse('Te redirecionei para nosso WhatsApp! Um atendente já vai te responder. 😊')
         break
       default:

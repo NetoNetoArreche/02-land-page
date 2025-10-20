@@ -12,7 +12,7 @@ SET content = jsonb_set(
       ),
       jsonb_build_object(
         'question', 'Quanto tempo tenho acesso?',
-        'answer', 'Você tem acesso por um ano completo ao curso e à comunidade, com a oportunidade de renovar por um valor reduzido após esse período.'
+        'answer', 'Você tem acesso por um ano completo ao curso e à comunidade, com a oportunidade de renovar.'
       ),
       jsonb_build_object(
         'question', 'Tem certificado?',

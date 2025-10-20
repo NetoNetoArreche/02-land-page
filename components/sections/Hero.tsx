@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
 import { useRealtimeContent } from '@/hooks/useRealtimeContent'
 import { useAuth } from '@/hooks/useAuth'
 import { useTrackingEvents } from '@/hooks/useTrackingEvents'
@@ -88,9 +89,6 @@ export default function Hero() {
   const { trackSectionView } = useTrackingEvents()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [localHero, setLocalHero] = useState(defaultHero)
-  const [draggedCard, setDraggedCard] = useState<number | null>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const dragOffsetRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 })
 
   useEffect(() => {
     trackSectionView('Hero')
@@ -209,70 +207,6 @@ export default function Hero() {
     }
   }
 
-  const updateCardPosition = (index: number, x: number, y: number) => {
-    const newCards = [...localHero.floatingCards]
-    newCards[index] = {
-      ...newCards[index],
-      position: { x, y }
-    }
-    setLocalHero(prev => ({
-      ...prev,
-      floatingCards: newCards
-    }))
-  }
-
-  const handleDrag = (e: React.DragEvent) => {
-    if (draggedCard === null || !containerRef.current || !e.clientX || !e.clientY) return
-    
-    const rect = containerRef.current.getBoundingClientRect()
-    const offsetX = dragOffsetRef.current.x
-    const offsetY = dragOffsetRef.current.y
-    
-    // Calculate position as percentage
-    const x = ((e.clientX - offsetX - rect.left) / rect.width) * 100
-    const y = ((e.clientY - offsetY - rect.top) / rect.height) * 100
-
-    // Clamp values between 0 and 100
-    const newX = Math.max(0, Math.min(100, x))
-    const newY = Math.max(0, Math.min(100, y))
-
-    // Update position without waiting
-    const newCards = [...localHero.floatingCards]
-    newCards[draggedCard] = {
-      ...newCards[draggedCard],
-      position: { x: newX, y: newY }
-    }
-    
-    setLocalHero(prev => ({
-      ...prev,
-      floatingCards: newCards
-    }))
-  }
-
-  const handleDragStart = (e: React.DragEvent, index: number) => {
-    if (!containerRef.current) return
-
-    const rect = containerRef.current.getBoundingClientRect()
-    const card = localHero.floatingCards[index]
-    
-    // Set drag offset relative to card position
-    dragOffsetRef.current = {
-      x: e.clientX - (rect.left + (card.position.x * rect.width / 100)),
-      y: e.clientY - (rect.top + (card.position.y * rect.height / 100))
-    }
-
-    setDraggedCard(index)
-    e.dataTransfer.setDragImage(new Image(), 0, 0) // Hide default drag image
-    e.dataTransfer.effectAllowed = 'move'
-  }
-
-  const handleDragEnd = () => {
-    if (draggedCard !== null) {
-      // Save the final position
-      handleSave(localHero)
-      setDraggedCard(null)
-    }
-  }
 
   const alignmentClasses = {
     left: 'text-left justify-start',
@@ -301,10 +235,10 @@ export default function Hero() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-white text-lg">Carregando conteúdo...</p>
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-900 text-lg font-medium">Carregando conteúdo...</p>
         </div>
       </div>
     )
@@ -316,13 +250,40 @@ export default function Hero() {
     ...localHero
   }
 
+  // Animações Framer Motion
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.6,
+        staggerChildren: 0.2
+      }
+    }
+  }
+
+  const itemVariants = {
+    hidden: { y: 30, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.6
+      }
+    }
+  }
+
   return (
     <>
-      <section className="relative min-h-screen overflow-hidden">
+      <section className="relative min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden pt-16">
         {isAdmin && (
-          <button
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => setIsSidebarOpen(true)}
-            className="fixed top-4 right-4 z-50 bg-black/50 hover:bg-black/70 text-white p-3 rounded-xl backdrop-blur-sm border border-white/10 transition-all duration-300 hover:scale-105"
+            className="fixed top-4 right-4 z-50 bg-slate-800/80 backdrop-blur-sm border border-slate-700 hover:border-blue-500/50 text-white p-3 rounded-xl transition-all duration-300"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -338,70 +299,67 @@ export default function Hero() {
                 d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"
               />
             </svg>
-          </button>
+          </motion.button>
         )}
-        {/* Background Gradients */}
-        <div className="absolute inset-0 bg-black">
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-500/10 via-purple-500/10 to-pink-500/10" />
-          <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20" />
+        
+        {/* Animated Background */}
+        <div className="absolute inset-0">
+          {/* Grid Pattern */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.1 }}
+            transition={{ duration: 1 }}
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `
+                linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px)
+              `,
+              backgroundSize: '50px 50px'
+            }}
+          />
+          
+          {/* Gradient Orbs */}
+          <motion.div 
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.3, 0.5, 0.3]
+            }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="absolute top-20 left-20 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"
+          />
+          <motion.div 
+            animate={{
+              scale: [1.2, 1, 1.2],
+              opacity: [0.2, 0.4, 0.2]
+            }}
+            transition={{
+              duration: 5,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 1
+            }}
+            className="absolute bottom-20 right-20 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl"
+          />
         </div>
 
-        {/* Animated Orbs */}
-        <div className="absolute top-1/4 left-1/4 w-[40rem] h-[40rem] bg-blue-500/20 rounded-full blur-[128px] animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-[35rem] h-[35rem] bg-purple-500/20 rounded-full blur-[96px] animate-pulse delay-1000" />
-
-        {/* Floating Code Snippets */}
-        <div 
-          ref={containerRef}
-          className="absolute inset-0 overflow-hidden"
-          onDragOver={(e) => {
-            e.preventDefault()
-            if (draggedCard !== null && isAdmin) {
-              handleDrag(e)
-            }
-          }}
-          onDrop={(e) => {
-            e.preventDefault()
-            handleDragEnd()
-          }}
-        >
-          {heroContent.floatingCards?.map((card, index) => (
-            <div
-              key={index}
-              className={`absolute hidden md:block transform ${isAdmin ? 'cursor-move' : ''}`}
-              style={{
-                left: `${card.position.x}%`,
-                top: `${card.position.y}%`,
-                transform: `rotate(${card.rotation}deg)`,
-                transition: draggedCard === index ? 'none' : 'all 0.3s ease',
-                zIndex: draggedCard === index ? 50 : 1,
-                cursor: isAdmin ? 'move' : 'default'
-              }}
-              draggable={isAdmin}
-              onDragStart={(e) => isAdmin && handleDragStart(e, index)}
-              onDragEnd={(e) => isAdmin && handleDragEnd()}
-              onClick={(e) => {
-                if (isAdmin) {
-                  e.stopPropagation()
-                  setIsSidebarOpen(true)
-                }
-              }}
-            >
-              <div className={`neon-border bg-black/80 backdrop-blur-sm p-4 rounded-lg ${draggedCard === index ? '' : 'animate-float'}`}>
-                <pre className={`text-sm ${card.color}`}>
-                  <code>{card.code}</code>
-                </pre>
-              </div>
-            </div>
-          ))}
-        </div>
 
         {/* Main Content */}
-        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 md:pt-32 pb-12 sm:pb-16 md:pb-20">
-          <div className={`max-w-4xl mx-auto ${alignmentClasses} mb-12 sm:mb-16 md:mb-20`}>
+        <motion.div 
+          className="relative container mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-16 md:pt-24 lg:pt-32 pb-8 sm:pb-12 md:pb-16 lg:pb-20"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <div className={`max-w-4xl mx-auto ${alignmentClasses} mb-8 sm:mb-12 md:mb-16 lg:mb-20`}>
             {/* Logo */}
             {heroContent.logo?.url && (
-              <div 
+              <motion.div 
+                variants={itemVariants}
                 className="mb-6 sm:mb-8 cursor-pointer flex items-center justify-center"
                 style={{ 
                   marginBottom: heroContent.logo.marginBottom,
@@ -413,114 +371,139 @@ export default function Hero() {
                 }}
                 onClick={() => isAdmin && setIsSidebarOpen(true)}
               >
-                <img
+                <motion.img
                   src={heroContent.logo.url}
                   alt="Logo"
                   style={{
                     width: `${heroContent.logo.width}px`,
                     height: `${heroContent.logo.height}px`,
                     maxWidth: '100%',
-                    objectFit: 'contain',
-                    ...(heroContent.logo.neonEffect && {
-                      filter: 'drop-shadow(0 0 10px rgba(59, 130, 246, 0.5)) drop-shadow(0 0 20px rgba(59, 130, 246, 0.3))',
-                      mixBlendMode: 'screen'
-                    })
+                    objectFit: 'contain'
                   }}
-                  className="animate-float"
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ type: "spring", stiffness: 300 }}
                 />
-              </div>
+              </motion.div>
             )}
 
             {/* Hero Title */}
-            <h1
-              className={`font-bold mb-4 sm:mb-6 gradient-text animate-gradient cursor-pointer neon-text ${titleClasses} leading-tight sm:leading-relaxed`}
+            <motion.h1
+              variants={itemVariants}
+              className={`font-bold mb-3 sm:mb-4 md:mb-6 cursor-pointer ${titleClasses} leading-tight text-white`}
               style={{ 
                 textAlign: heroContent.elementsAlignment || 'center',
-                color: heroContent.titleColor,
-                textShadow: '0 0 20px rgba(59,130,246,0.5), 0 0 40px rgba(59,130,246,0.25)',
-                fontSize: 'clamp(1.75rem, 5vw, 4rem)' // Tamanho responsivo que se adapta à largura da tela
+                fontSize: 'clamp(1.5rem, 4vw, 4rem)',
+                background: 'linear-gradient(135deg, #ffffff 0%, #60a5fa 50%, #a855f7 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
               }}
+              onClick={() => isAdmin && setIsSidebarOpen(true)}
             >
               {heroContent.title}
-            </h1>
+            </motion.h1>
 
             {/* Hero Subtitle */}
-            <p
-              className="text-base sm:text-lg md:text-xl mb-8 sm:mb-10 md:mb-12"
+            <motion.p
+              variants={itemVariants}
+              className="text-sm sm:text-base md:text-lg lg:text-xl mb-6 sm:mb-8 md:mb-10 lg:mb-12 text-slate-300 leading-relaxed px-2 sm:px-0"
               style={{ 
                 textAlign: heroContent.elementsAlignment || 'center',
-                color: heroContent.subtitleColor,
-                textShadow: '0 0 10px rgba(59, 130, 246, 0.3)',
-                fontSize: 'clamp(1rem, 3vw, 1.5rem)' // Tamanho responsivo para o subtítulo
+                fontSize: 'clamp(0.875rem, 2.5vw, 1.5rem)'
               }}
             >
               {heroContent.subtitle}
-            </p>
+            </motion.p>
 
             {/* CTA Buttons */}
-            <div className={`flex flex-col sm:flex-row gap-4 sm:gap-6 ${alignmentClasses}`}>
-              <Link
-                href="#pricing"
-                onClick={(e) => {
-                  e.preventDefault();
-                  scrollToPlans();
-                }}
-                className="group relative px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-base sm:text-lg font-semibold overflow-hidden transition-all duration-300 hover:scale-105 bg-gradient-to-r from-blue-500 to-purple-500 hover:opacity-90"
+            <motion.div 
+              variants={itemVariants}
+              className={`flex flex-col sm:flex-row gap-4 sm:gap-6 ${alignmentClasses}`}
+            >
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                <span className="relative text-white">
+                <Link
+                  href="#pricing"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    scrollToPlans();
+                  }}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-sm sm:text-base lg:text-lg px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold transition-all duration-300 inline-flex items-center justify-center shadow-lg hover:shadow-xl"
+                >
                   {heroContent.ctaText}
-                </span>
-              </Link>
-            </div>
+                </Link>
+              </motion.div>
+            </motion.div>
           </div>
 
           {/* Tech Stack Pills */}
-          <div className={`flex flex-wrap gap-3 sm:gap-4 ${alignmentClasses} mb-12`}>
+          <motion.div 
+            variants={itemVariants}
+            className={`flex flex-wrap gap-2 sm:gap-3 lg:gap-4 ${alignmentClasses} mb-8 sm:mb-10 lg:mb-12 px-2 sm:px-0`}
+          >
             {heroContent.tags?.map((tech, index) => (
-              <span
+              <motion.span
                 key={index}
-                className="px-4 sm:px-6 py-1 sm:py-2 bg-gradient-to-r from-blue-500/10 to-purple-500/10 text-blue-400 rounded-full text-sm sm:text-base md:text-lg border border-blue-500/20 hover:border-blue-400/40 transition-all duration-300 hover:scale-105"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.8 + index * 0.1 }}
+                whileHover={{ scale: 1.05 }}
+                className="px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 bg-slate-800/60 backdrop-blur-sm text-blue-400 rounded-full text-xs sm:text-sm lg:text-base font-medium border border-slate-700/50 hover:border-blue-500/50 transition-all duration-300 shadow-lg"
               >
                 {tech}
-              </span>
+              </motion.span>
             ))}
-          </div>
+          </motion.div>
 
           {/* Highlight Box */}
-          <div className={`mt-12 sm:mt-20 ${alignmentClasses}`}>
-            <div className="inline-block transform hover:scale-105 transition-all duration-300">
-              <div className="p-4 sm:p-6 md:p-8 glass neon-border rounded-2xl">
-                <div className="flex items-center gap-3 sm:gap-4">
-                  <span className="text-2xl sm:text-3xl md:text-4xl animate-bounce">⚡</span>
-                  <div>
-                    <p className="text-base sm:text-lg md:text-2xl">
-                      <span className="gradient-text font-bold">
+          <motion.div 
+            variants={itemVariants}
+            className={`mt-8 sm:mt-12 lg:mt-20 ${alignmentClasses} px-2 sm:px-0`}
+          >
+            <motion.div 
+              whileHover={{ scale: 1.02 }}
+              className="inline-block w-full sm:w-auto"
+            >
+              <div className="bg-gradient-to-r from-slate-800/80 to-slate-700/80 backdrop-blur-sm p-4 sm:p-6 lg:p-8 xl:p-10 rounded-xl sm:rounded-2xl border border-slate-600/50 shadow-2xl">
+                <div className="flex items-center gap-3 sm:gap-4 lg:gap-6">
+                  <motion.span 
+                    animate={{ 
+                      scale: [1, 1.1, 1],
+                      rotate: [0, 5, -5, 0]
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                    className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl flex-shrink-0"
+                  >
+                    ⚡
+                  </motion.span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm sm:text-base lg:text-lg xl:text-xl">
+                      <span className="bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent font-bold text-base sm:text-lg lg:text-xl xl:text-2xl block sm:inline">
                         {heroContent.offer?.title || "Oferta Especial de Lançamento"}
                       </span>
-                      <br />
-                      <span className="text-white">
+                      <br className="hidden sm:block" />
+                      <span className="text-slate-300 font-medium text-sm sm:text-base lg:text-lg">
                         {heroContent.offer?.description || "Últimas vagas com 30% de desconto!"}
                       </span>
                     </p>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
+            </motion.div>
+          </motion.div>
+        </motion.div>
 
         {/* Decorative Bottom Border */}
         <div className="absolute bottom-0 left-0 right-0">
-          <div className="h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
-          <div className="h-px mt-1 bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
+          <div className="h-px bg-gradient-to-r from-transparent via-blue-300 to-transparent" />
         </div>
 
-        {/* Admin Edit Hint */}
-        {isAdmin && (
-          <div className="absolute top-4 right-4 text-sm text-gray-400">
-            Clique no título para customizar
-          </div>
-        )}
       </section>
 
       {/* Customization Sidebar */}

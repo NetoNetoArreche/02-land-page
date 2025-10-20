@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
+import { motion } from 'framer-motion'
 import { useRealtimeContent } from '@/hooks/useRealtimeContent'
 import Link from 'next/link'
 import confetti from 'canvas-confetti'
@@ -142,7 +143,7 @@ export default function Plans() {
                 {notification.name}
               </p>
               <p className="text-blue-400 text-xs">
-                acabou de assinar a Comunidade IACode!
+                acabou de assinar a Comunidade Vibe Coding!
               </p>
               <p className="text-gray-200 text-xs mt-0.5">
                 {notification.time}
@@ -271,201 +272,177 @@ export default function Plans() {
   }
 
   return (
-    <section id="plans-section" className="py-32 relative overflow-hidden">
+    <section id="plans-section" className="pt-24 pb-16 sm:pt-28 sm:pb-20 lg:pt-32 lg:pb-24 relative">
       {/* Container para as notificações */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {renderedNotifications}
       </div>
 
-      {/* Base Background with Visible Grid */}
-      <div 
-        className="absolute inset-0"
-        style={{
-          backgroundColor: '#000',
-          backgroundImage: `
-            linear-gradient(rgba(99, 102, 241, 0.15) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(99, 102, 241, 0.15) 1px, transparent 1px)`,
-          backgroundSize: '100px 100px',
-          backgroundPosition: 'center center'
-        }}
-      />
-
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 to-purple-500/5" />
-      
-      {/* Large Grid Pattern */}
-      <div 
-        className="absolute inset-0 opacity-[0.15]"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, rgba(99, 102, 241, 0.03) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(99, 102, 241, 0.03) 1px, transparent 1px)
-          `,
-          backgroundSize: '120px 120px',
-          maskImage: 'radial-gradient(circle at center, black, transparent 80%)'
-        }}
-      />
-
-      {/* Medium Grid Pattern */}
-      <div 
-        className="absolute inset-0 opacity-[0.07]"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, rgba(99, 102, 241, 0.05) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(99, 102, 241, 0.05) 1px, transparent 1px)
-          `,
-          backgroundSize: '60px 60px',
-          maskImage: 'radial-gradient(circle at center, black, transparent 80%)'
-        }}
-      />
-
-      {/* Small Grid Pattern */}
-      <div 
-        className="absolute inset-0 opacity-[0.04]"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, rgba(99, 102, 241, 0.05) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(99, 102, 241, 0.05) 1px, transparent 1px)
-          `,
-          backgroundSize: '30px 30px',
-          maskImage: 'radial-gradient(circle at center, black, transparent 80%)'
-        }}
-      />
-
-      {/* Diagonal Grid Pattern */}
-      <div 
-        className="absolute inset-0 opacity-[0.07]"
-        style={{
-          backgroundImage: `
-            linear-gradient(45deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px),
-            linear-gradient(-45deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px)
-          `,
-          backgroundSize: '48px 48px',
-          maskImage: 'radial-gradient(circle at center, black, transparent 80%)'
-        }}
-      />
-      
-      {/* Animated Gradient Orbs */}
-      <div className="absolute -top-40 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full mix-blend-screen filter blur-3xl animate-pulse" />
-      <div className="absolute -bottom-40 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full mix-blend-screen filter blur-3xl animate-pulse delay-1000" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[45rem] h-[45rem] bg-blue-500/5 rounded-full mix-blend-screen filter blur-3xl animate-pulse delay-500" />
-
       {/* Content */}
-      <div id="pricing" className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"> 
+      <div id="pricing" className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10"> 
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl sm:text-5xl font-bold mb-4 gradient-text">
-            Plano Exclusivo
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-16"
+        >
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="inline-block bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full px-6 py-2 mb-6"
+          >
+            <span className="text-blue-400 font-semibold text-sm">💎 OFERTA ESPECIAL</span>
+          </motion.div>
+          
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 text-white">
+            <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+              Plano Exclusivo
+            </span>
           </h2>
-          <p className="text-xl text-gray-400">
-            Invista no seu futuro com nossa assinatura anual
+          <p className="text-lg sm:text-xl text-slate-400 leading-relaxed max-w-2xl mx-auto">
+            Transforme sua carreira com acesso completo à nossa plataforma
           </p>
-        </div>
+        </motion.div>
 
-        {/* Single Plan */}
-        <div className="max-w-lg mx-auto">
-          <div className="relative p-8 rounded-2xl backdrop-blur-sm transition-all duration-300 hover:scale-105 bg-gradient-to-b from-blue-500/20 to-purple-500/20 border-2 border-blue-500/50 overflow-hidden shadow-xl">
-            {/* Card Decorative elements */}
-            <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
-            <div className="absolute bottom-0 left-0 w-40 h-40 bg-purple-500/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl" />
-            
-            <div className="relative">
-              {/* Plan name */}
-              <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
-                  {plan.name}
-                </h3>
+        {/* Premium Pricing Card */}
+        <motion.div 
+          initial={{ opacity: 0, y: 60 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          className="max-w-lg mx-auto mt-16"
+        >
+          <div className="relative">
+            {/* Main Card */}
+            <div className="relative bg-white rounded-3xl shadow-2xl overflow-hidden border-2 border-slate-200 hover:border-blue-400 transition-colors duration-300">
+
+              {/* Header with Gradient */}
+              <div className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 px-8 pt-8 pb-8 text-center text-white relative">
+                
+                {/* Oferta Badge - DENTRO do header */}
+                <div className="absolute -top-0 left-1/2 transform -translate-x-1/2">
+                  <div className="bg-gradient-to-r from-green-400 to-blue-500 text-white px-6 py-2 rounded-b-2xl text-sm font-bold shadow-lg">
+                    💎 OFERTA ESPECIAL
+                  </div>
+                </div>
+                <h3 className="text-2xl font-bold mb-2 mt-6">{plan.name}</h3>
+                <p className="text-indigo-100 text-sm">Transforme sua carreira agora</p>
               </div>
 
-              {/* Price */}
-              <div className="text-center mb-4">
-                <div className="flex flex-col items-center gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-3xl font-semibold text-gray-300">R$</span>
-                    <div className="flex items-start">
-                      <span className="text-7xl font-bold gradient-text">497</span>
-                      <span className="text-3xl font-bold gradient-text">,00</span>
-                    </div>
+              {/* Price Section */}
+              <div className="px-8 py-6 bg-gradient-to-br from-gray-50 to-white">
+                <div className="text-center">
+                  {/* Old Price */}
+                  <div className="flex items-center justify-center gap-3 mb-2">
+                    <span className="text-lg text-gray-400 line-through">De R$ 997</span>
+                    <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold animate-bounce">-50%</span>
                   </div>
-                  <span className="text-xl font-medium text-gray-300">à vista</span>
+                  
+                  {/* Current Price */}
+                  <div className="flex items-center justify-center gap-1 mb-1">
+                    <span className="text-2xl font-semibold text-gray-600">R$</span>
+                    <span className="text-6xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                      497
+                    </span>
+                  </div>
+                  
+                  <p className="text-gray-600 font-medium mb-4">pagamento único</p>
+                  
+                  {/* Installments */}
+                  <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-4 border border-indigo-100">
+                    <p className="text-gray-700">
+                      ou <span className="text-2xl font-bold text-indigo-600">12x R$ {plan.priceInstallment}</span>
+                    </p>
+                    <p className="text-sm text-gray-500">sem juros</p>
+                  </div>
                 </div>
               </div>
-
-              {/* Installment Option */}
-              <div className="text-center mb-8">
-                <p className="text-lg text-gray-400">
-                  ou 12x de{' '}
-                  <span className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
-                    R$ {plan.priceInstallment}
-                  </span>
-                </p>
-              </div>
-
-              {/* Divider */}
-              <div className="w-24 h-1 mx-auto bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mb-8" />
 
               {/* Features */}
-              <ul className="space-y-4 mb-8">
-                {plan.features.map((feature, index) => (
-                  <li key={index} className="flex items-center text-gray-300 bg-black/20 p-3 rounded-lg hover:bg-black/30 transition-colors backdrop-blur-sm">
-                    <svg
-                      className="w-5 h-5 mr-3 text-blue-500 flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+              <div className="px-8 py-6">
+                <h4 className="text-lg font-bold text-gray-800 mb-4 text-center">
+                  ✨ Tudo que você vai receber
+                </h4>
+                
+                <div className="space-y-3">
+                  {plan.features.map((feature, index) => (
+                    <motion.div 
+                      key={index}
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      className="flex items-center gap-3"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    <span className="text-sm sm:text-base">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-
-              {/* CTA Button */}
-              <button
-                onClick={handleCheckout}
-                className="w-full px-8 py-4 text-lg font-semibold bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full hover:opacity-90 transition-opacity mb-6"
-              >
-                Começar Agora
-              </button>
-
-              {/* Secure Payment Info */}
-              <div className="text-center mt-2">
-                <div className="flex items-center justify-center gap-2 text-gray-400 mb-2">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
-                  <span className="text-sm">Compra 100% Segura</span>
+                      <div className="w-5 h-5 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 flex items-center justify-center flex-shrink-0">
+                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <span className="text-gray-700 font-medium text-sm">{feature}</span>
+                    </motion.div>
+                  ))}
                 </div>
-                <div className="flex items-center justify-center gap-3">
-                  <div 
-                    className="flex items-center gap-1 text-gray-400 cursor-pointer hover:text-blue-400 transition-colors"
-                    onClick={() => handlePaymentMethodSelect('credit_card')}
-                  >
-                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M4 4C2.89543 4 2 4.89543 2 6V18C2 19.1046 2.89543 20 4 20H20C21.1046 20 22 19.1046 22 18V6C22 4.89543 21.1046 4 20 4H4ZM4 6H20V10H4V6ZM4 12H20V18H4V12Z"/>
+              </div>
+
+              {/* CTA Section */}
+              <div className="px-8 pb-8">
+                <motion.button
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleCheckout}
+                  className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 text-white font-bold py-4 px-6 rounded-2xl text-lg transition-all duration-300 shadow-lg hover:shadow-xl mb-4"
+                >
+                  🚀 Começar Agora
+                </motion.button>
+                
+                {/* Trust Indicators */}
+                <div className="space-y-2 text-center">
+                  <div className="flex items-center justify-center gap-2 text-green-600">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span className="text-sm">Cartão</span>
+                    <span className="text-sm font-medium">Garantia de 7 dias</span>
                   </div>
-                  <div 
-                    className="flex items-center gap-1 text-gray-400 cursor-pointer hover:text-blue-400 transition-colors"
-                    onClick={() => handlePaymentMethodSelect('pix')}
-                  >
-                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M13.0607 2.93934C11.9289 1.80761 10.0711 1.80761 8.93934 2.93934L2.93934 8.93934C1.80761 10.0711 1.80761 11.9289 2.93934 13.0607L8.93934 19.0607C10.0711 20.1924 11.9289 20.1924 13.0607 19.0607L19.0607 13.0607C20.1924 11.9289 20.1924 10.0711 19.0607 8.93934L13.0607 2.93934ZM11 7C11 6.44772 11.4477 6 12 6C12.5523 6 13 6.44772 13 7V11C13 11.5523 12.5523 12 12 12C11.4477 12 11 11.5523 11 11V7ZM12 14C11.4477 14 11 14.4477 11 15C11 15.5523 11.4477 16 12 16C12.5523 16 13 15.5523 13 15C13 14.4477 12.5523 14 12 14Z"/>
+                  
+                  <div className="flex items-center justify-center gap-2 text-gray-500">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
-                    <span className="text-sm">Pix</span>
+                    <span className="text-sm">Pagamento 100% Seguro</span>
+                  </div>
+                  
+                  {/* Payment Methods */}
+                  <div className="flex items-center justify-center gap-4 pt-2">
+                    <div 
+                      className="flex items-center gap-1 text-gray-500 hover:text-indigo-600 transition-colors cursor-pointer"
+                      onClick={() => handlePaymentMethodSelect('credit_card')}
+                    >
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M4 4C2.89543 4 2 4.89543 2 6V18C2 19.1046 2.89543 20 4 20H20C21.1046 20 22 19.1046 22 18V6C22 4.89543 21.1046 4 20 4H4ZM4 6H20V10H4V6ZM4 12H20V18H4V12Z"/>
+                      </svg>
+                      <span className="text-xs font-medium">Cartão</span>
+                    </div>
+                    
+                    <div className="w-px h-4 bg-gray-300" />
+                    
+                    <div 
+                      className="flex items-center gap-1 text-gray-500 hover:text-indigo-600 transition-colors cursor-pointer"
+                      onClick={() => handlePaymentMethodSelect('pix')}
+                    >
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M13.0607 2.93934C11.9289 1.80761 10.0711 1.80761 8.93934 2.93934L2.93934 8.93934C1.80761 10.0711 1.80761 11.9289 2.93934 13.0607L8.93934 19.0607C10.0711 20.1924 11.9289 20.1924 13.0607 19.0607L19.0607 13.0607C20.1924 11.9289 20.1924 10.0711 19.0607 8.93934L13.0607 2.93934ZM11 7C11 6.44772 11.4477 6 12 6C12.5523 6 13 6.44772 13 7V11C13 11.5523 12.5523 12 12 12C11.4477 12 11 11.5523 11 11V7ZM12 14C11.4477 14 11 14.4477 11 15C11 15.5523 11.4477 16 12 16C12.5523 16 13 15.5523 13 15C13 14.4477 12.5523 14 12 14Z"/>
+                      </svg>
+                      <span className="text-xs font-medium">PIX</span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   )
