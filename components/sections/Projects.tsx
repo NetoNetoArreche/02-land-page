@@ -58,21 +58,38 @@ const TickerComponent = memo(({ projects }: { projects: any[] }) => {
               key={index}
               className="flex-shrink-0"
             >
-              <div className="w-64 h-96 rounded-lg overflow-hidden border border-slate-700/30 hover:border-blue-500/50 transition-colors duration-300 shadow-md">
-                <Image
-                  src={project.image || '/placeholder.jpg'}
-                  alt={project.title}
-                  width={256}
-                  height={384}
-                  className="w-full h-full object-cover"
-                  onError={(e: any) => {
-                    console.error('Erro ao carregar imagem:', project.image)
-                    // Fallback para placeholder colorido se imagem falhar
-                    e.target.style.display = 'none'
-                    e.target.nextSibling.style.display = 'flex'
-                  }}
-                />
-                <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center" style={{ display: 'none' }}>
+              <div className="w-64 h-96 rounded-lg overflow-hidden border border-slate-700/30 hover:border-blue-500/50 transition-colors duration-300 shadow-md relative">
+                {/* Debug no useEffect */}
+                {(() => { console.log('Projeto:', project); return null; })()}
+                
+                {project.image && project.image.includes('supabase') ? (
+                  <img
+                    src={project.image}
+                    alt={project.title}
+                    className="w-full h-full object-cover"
+                    onLoad={() => console.log('Imagem carregada com sucesso:', project.image)}
+                    onError={(e) => {
+                      console.error('ERRO ao carregar imagem do Supabase:', project.image)
+                      e.currentTarget.style.display = 'none'
+                      const fallback = e.currentTarget.nextElementSibling as HTMLElement
+                      if (fallback) fallback.style.display = 'flex'
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                    <div className="text-center p-6">
+                      <h3 className="text-white font-bold text-xl mb-2">{project.title}</h3>
+                      <div className="w-16 h-16 bg-white/20 rounded-full mx-auto flex items-center justify-center">
+                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H3m2 0h3M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Fallback que aparece quando imagem falha */}
+                <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center absolute top-0 left-0" style={{ display: 'none' }}>
                   <div className="text-center p-6">
                     <h3 className="text-white font-bold text-xl mb-2">{project.title}</h3>
                     <div className="w-16 h-16 bg-white/20 rounded-full mx-auto flex items-center justify-center">
@@ -156,12 +173,12 @@ export default function Projects() {
   // Usar projetos estáticos para o ticker (evita re-renders)
   const tickerProjects = defaultProjects.items
   
-  // Atualizar projetos locais quando o conteúdo mudar (só para admin)
+  // Atualizar projetos locais quando o conteúdo mudar (para todos os usuários)
   useEffect(() => {
-    if (content?.projects && isAdmin) {
+    if (content?.projects) {
       setLocalProjects(content.projects)
     }
-  }, [content, isAdmin])
+  }, [content])
 
   const handlePreview = (newContent: any) => {
     console.log('Preview novo conteúdo:', newContent)
