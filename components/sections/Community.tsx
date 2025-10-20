@@ -96,8 +96,8 @@ export default function Community() {
               >
                 <div className="relative">
                   <img 
-                    src="/motivacional-header.png" 
-                    alt="Comunidade Vibe Coding - Motivacional"
+                    src="/vibe-coding-community.png?v=2025" 
+                    alt="Comunidade Vibe Coding - Plataforma"
                     className="w-full rounded-2xl border-2 border-slate-700/50 shadow-2xl relative z-10"
                     style={{
                       filter: "drop-shadow(0 25px 50px rgba(0, 0, 0, 0.5))"
