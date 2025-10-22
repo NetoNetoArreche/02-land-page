@@ -141,6 +141,15 @@ const defaultTestimonials = {
   ]
 }
 
+// Função para gerar iniciais do nome
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase())
+    .join('')
+    .slice(0, 2) // Máximo 2 iniciais
+}
+
 // Componente de Card de Conversa
 function TestimonialCard({ testimonial, index }: { testimonial: any, index: number }) {
   return (
@@ -168,17 +177,15 @@ function TestimonialCard({ testimonial, index }: { testimonial: any, index: numb
 
       {/* Layout com Avatar e Conversa lado a lado */}
       <div className="flex gap-3">
-        {/* Avatar */}
+        {/* Avatar com Iniciais */}
         <div className="flex-shrink-0">
           <div className="relative w-12 h-12">
             <div className="absolute inset-0 bg-gradient-to-r from-green-500/60 to-blue-500/60 rounded-full blur-sm" />
             <div className="absolute inset-[1px] bg-slate-800 rounded-full" />
-            <div className="absolute inset-[2px] rounded-full overflow-hidden">
-              <img
-                src={testimonial.photo}
-                alt={testimonial.name}
-                className="w-full h-full object-cover"
-              />
+            <div className="absolute inset-[2px] rounded-full bg-gradient-to-br from-green-500 to-blue-500 flex items-center justify-center">
+              <span className="text-white font-bold text-sm">
+                {getInitials(testimonial.name)}
+              </span>
             </div>
           </div>
         </div>
